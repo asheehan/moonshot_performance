@@ -22,7 +22,45 @@ defmodule MoonshotPerformanceWeb.UploadLive do
 
   @impl true
   def handle_event("submit", _params, socket) do
-    {:noreply, socket}
+    email = socket.assigns.email
+
+    # Validate email is present
+    if email == "" or is_nil(email) do
+      socket = put_flash(socket, :error, "Please enter your email address")
+      {:noreply, socket}
+    else
+      # Consume uploaded files
+      uploaded_files =
+        consume_uploaded_entries(socket, :bloodwork_file, fn %{path: path}, entry ->
+          # Create a struct that looks like what save_upload expects
+          upload_entry = %{path: path, client_name: entry.client_name}
+
+          case MoonshotPerformance.Uploads.save_upload(email, upload_entry) do
+            {:ok, upload} ->
+              {:ok, upload}
+
+            {:error, _reason} ->
+              {:postpone, :error}
+          end
+        end)
+
+      case uploaded_files do
+        [] ->
+          socket = put_flash(socket, :error, "Please select a file to upload")
+          {:noreply, socket}
+
+        [_upload | _] ->
+          socket =
+            socket
+            |> put_flash(
+              :info,
+              "File uploaded successfully! We'll analyze your results and send them to #{email}."
+            )
+            |> assign(:email, "")
+
+          {:noreply, socket}
+      end
+    end
   end
 
   @impl true

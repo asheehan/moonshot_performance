@@ -9,7 +9,7 @@ defmodule MoonshotPerformanceWeb.PageLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center px-4 py-12">
+    <.gradient_page>
       <div class="mx-auto max-w-4xl w-full">
         <div class="text-center mb-12">
           <h1 class="text-5xl md:text-6xl font-bold text-white mb-6">
@@ -40,7 +40,7 @@ defmodule MoonshotPerformanceWeb.PageLive do
           </.link>
         </div>
       </div>
-    </div>
+    </.gradient_page>
     """
   end
 end

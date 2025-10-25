@@ -32,6 +32,25 @@ defmodule MoonshotPerformanceWeb.CoreComponents do
   alias Phoenix.LiveView.JS
 
   @doc """
+  Provides a full-screen gradient background layout for pages.
+
+  ## Examples
+
+      <.gradient_page>
+        <div>Your content here</div>
+      </.gradient_page>
+  """
+  slot :inner_block, required: true
+
+  def gradient_page(assigns) do
+    ~H"""
+    <div class="min-h-screen bg-gradient-to-br from-gray-700 to-black flex items-center justify-center px-4 py-12">
+      {render_slot(@inner_block)}
+    </div>
+    """
+  end
+
+  @doc """
   Renders flash notices.
 
   ## Examples

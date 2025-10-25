@@ -20,4 +20,20 @@ defmodule MoonshotPerformanceWeb.PageLiveTest do
     {:ok, _page_live, html} = live(conn, ~p"/")
     assert html =~ "AI-powered health insights"
   end
+
+  test "displays 'I Have My Bloodwork' CTA button", %{conn: conn} do
+    {:ok, _page_live, html} = live(conn, ~p"/")
+    assert html =~ "I Have My Bloodwork"
+    assert html =~ "📄"
+    assert html =~ "Upload your results and get AI-powered insights"
+    assert html =~ "/upload"
+  end
+
+  test "displays 'I Need Bloodwork' CTA button", %{conn: conn} do
+    {:ok, _page_live, html} = live(conn, ~p"/")
+    assert html =~ "I Need Bloodwork"
+    assert html =~ "🔬"
+    assert html =~ "Find nearby labs to get tested"
+    assert html =~ "/get-bloodwork"
+  end
 end

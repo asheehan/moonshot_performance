@@ -8,6 +8,22 @@ defmodule MoonshotPerformance.Uploads do
   alias MoonshotPerformance.Upload
 
   @doc """
+  Gets a single upload.
+
+  Raises `Ecto.NoResultsError` if the Upload does not exist.
+
+  ## Examples
+
+      iex> get_upload!(123)
+      %Upload{}
+
+      iex> get_upload!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_upload!(id), do: Repo.get!(Upload, id)
+
+  @doc """
   Creates an upload.
 
   ## Examples

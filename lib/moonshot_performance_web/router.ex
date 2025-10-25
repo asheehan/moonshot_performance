@@ -19,6 +19,7 @@ defmodule MoonshotPerformanceWeb.Router do
 
     live "/", PageLive, :index
     live "/upload", UploadLive, :new
+    live "/upload/:id", UploadShowLive, :show
   end
 
   # Other scopes may use custom stacks.

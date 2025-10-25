@@ -49,14 +49,14 @@ defmodule MoonshotPerformanceWeb.UploadLive do
           socket = put_flash(socket, :error, "Please select a file to upload")
           {:noreply, socket}
 
-        [_upload | _] ->
+        [upload | _] ->
           socket =
             socket
             |> put_flash(
               :info,
               "File uploaded successfully! We'll analyze your results and send them to #{email}."
             )
-            |> assign(:email, "")
+            |> push_navigate(to: ~p"/upload/#{upload.id}")
 
           {:noreply, socket}
       end

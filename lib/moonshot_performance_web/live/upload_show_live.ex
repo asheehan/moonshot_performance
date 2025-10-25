@@ -7,6 +7,11 @@ defmodule MoonshotPerformanceWeb.UploadShowLive do
   def mount(%{"id" => id}, _session, socket) do
     case Uploads.get_upload!(id) do
       upload when not is_nil(upload) ->
+        # Subscribe to PubSub updates for this upload
+        if connected?(socket) do
+          Uploads.subscribe_to_upload(id)
+        end
+
         socket =
           socket
           |> assign(:upload, upload)
@@ -25,6 +30,17 @@ defmodule MoonshotPerformanceWeb.UploadShowLive do
        socket
        |> put_flash(:error, "Upload not found")
        |> push_navigate(to: ~p"/upload")}
+  end
+
+  @impl true
+  def handle_info({:status_updated, upload}, socket) do
+    {:noreply, assign(socket, :upload, upload)}
+  end
+
+  @impl true
+  def handle_info({_event, upload}, socket) do
+    # Handle any other upload events
+    {:noreply, assign(socket, :upload, upload)}
   end
 
   @impl true

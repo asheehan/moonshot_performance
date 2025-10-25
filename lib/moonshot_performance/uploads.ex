@@ -7,6 +7,38 @@ defmodule MoonshotPerformance.Uploads do
   alias MoonshotPerformance.Repo
   alias MoonshotPerformance.Upload
 
+  @pubsub MoonshotPerformance.PubSub
+
+  @doc """
+  Subscribes the current process to updates for a specific upload.
+
+  ## Examples
+
+      iex> subscribe_to_upload("a3f89c2e-4b5a-4d87-9f6e-8c1d2e3f4a5b")
+      :ok
+
+  """
+  def subscribe_to_upload(upload_id) do
+    Phoenix.PubSub.subscribe(@pubsub, "upload:#{upload_id}")
+  end
+
+  @doc """
+  Broadcasts an update for a specific upload.
+
+  ## Examples
+
+      iex> broadcast_upload_update(upload, :status_updated)
+      :ok
+
+  """
+  def broadcast_upload_update(%Upload{} = upload, event) do
+    Phoenix.PubSub.broadcast(
+      @pubsub,
+      "upload:#{upload.id}",
+      {event, upload}
+    )
+  end
+
   @doc """
   Gets a single upload.
 

@@ -3,6 +3,14 @@ defmodule MoonshotPerformanceWeb.UploadLive do
 
   @impl true
   def mount(_params, _session, socket) do
+    socket =
+      socket
+      |> allow_upload(:bloodwork_file,
+        accept: ~w(.pdf .jpg .jpeg .png),
+        max_entries: 1,
+        max_file_size: 10_000_000
+      )
+
     {:ok, socket}
   end
 

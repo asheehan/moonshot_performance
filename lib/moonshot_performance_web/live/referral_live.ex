@@ -3,7 +3,59 @@ defmodule MoonshotPerformanceWeb.ReferralLive do
 
   @impl true
   def mount(_params, _session, socket) do
+    socket =
+      socket
+      |> assign(:zip_code, "")
+      |> assign(:email, "")
+
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_event("validate", params, socket) do
+    zip_code = params["zip_code"] || ""
+    email = params["email"] || ""
+
+    socket =
+      socket
+      |> assign(:zip_code, zip_code)
+      |> assign(:email, email)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("submit", _params, socket) do
+    email = socket.assigns.email
+    zip_code = socket.assigns.zip_code
+
+    # Validate email is present and valid format
+    cond do
+      email == "" or is_nil(email) ->
+        socket = put_flash(socket, :error, "Please enter your email address")
+        {:noreply, socket}
+
+      not String.match?(email, ~r/^[^\s]+@[^\s]+$/) ->
+        socket = put_flash(socket, :error, "Please enter a valid email address")
+        {:noreply, socket}
+
+      true ->
+        # TODO: Store referral request in database
+        message =
+          if zip_code != "" do
+            "Thanks! We'll send lab information near #{zip_code} to #{email}."
+          else
+            "Thanks! We'll send lab information to #{email}."
+          end
+
+        socket =
+          socket
+          |> put_flash(:info, message)
+          |> assign(:zip_code, "")
+          |> assign(:email, "")
+
+        {:noreply, socket}
+    end
   end
 
   @impl true
@@ -14,13 +66,16 @@ defmodule MoonshotPerformanceWeb.ReferralLive do
         <div class="bg-white rounded-lg p-8 shadow-lg">
           <h1 class="text-3xl font-bold text-gray-900 mb-6">Find a Lab Near You</h1>
 
-          <div class="space-y-6">
-            <div>
-              <p class="text-lg text-gray-700 mb-4">
-                Get your bloodwork done at a lab near you.
-              </p>
-            </div>
+          <.flash kind={:info} flash={@flash} />
+          <.flash kind={:error} flash={@flash} />
 
+          <div class="mb-6">
+            <p class="text-lg text-gray-700">
+              Get your bloodwork done at a lab near you.
+            </p>
+          </div>
+
+          <form phx-submit="submit" phx-change="validate" class="space-y-6">
             <div>
               <label for="zip_code" class="block text-sm font-semibold text-gray-900 mb-2">
                 ZIP Code (Optional)
@@ -29,6 +84,7 @@ defmodule MoonshotPerformanceWeb.ReferralLive do
                 type="text"
                 name="zip_code"
                 id="zip_code"
+                value={@zip_code}
                 placeholder="Enter ZIP code"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
@@ -42,6 +98,7 @@ defmodule MoonshotPerformanceWeb.ReferralLive do
                 type="email"
                 name="email"
                 id="email"
+                value={@email}
                 required
                 placeholder="your@email.com"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
@@ -54,15 +111,15 @@ defmodule MoonshotPerformanceWeb.ReferralLive do
             >
               Find Labs
             </button>
+          </form>
 
-            <div class="pt-4">
-              <.link
-                navigate="/"
-                class="inline-block text-gray-600 hover:text-gray-900 font-medium"
-              >
-                ← Back to Home
-              </.link>
-            </div>
+          <div class="pt-4">
+            <.link
+              navigate="/"
+              class="inline-block text-gray-600 hover:text-gray-900 font-medium"
+            >
+              ← Back to Home
+            </.link>
           </div>
         </div>
       </div>

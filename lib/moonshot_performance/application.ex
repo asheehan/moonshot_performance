@@ -7,10 +7,15 @@ defmodule MoonshotPerformance.Application do
 
   @impl true
   def start(_type, _args) do
+    # Ensure uploads directory exists
+    uploads_dir = Path.join([:code.priv_dir(:moonshot_performance), "uploads"])
+    File.mkdir_p!(uploads_dir)
+
     children = [
       MoonshotPerformanceWeb.Telemetry,
       MoonshotPerformance.Repo,
-      {DNSCluster, query: Application.get_env(:moonshot_performance, :dns_cluster_query) || :ignore},
+      {DNSCluster,
+       query: Application.get_env(:moonshot_performance, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: MoonshotPerformance.PubSub},
       # Start a worker by calling: MoonshotPerformance.Worker.start_link(arg)
       # {MoonshotPerformance.Worker, arg},

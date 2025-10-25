@@ -7,6 +7,9 @@ app = "moonshot-performance"
 primary_region = "ord"
 
 [build]
+  [build.args]
+    ELIXIR_VERSION = "1.16.1"
+    ERLANG_VERSION = "26.2.3"
 
 [deploy]
   release_command = "/app/bin/migrate"

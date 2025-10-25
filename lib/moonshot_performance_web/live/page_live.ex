@@ -31,7 +31,7 @@ defmodule MoonshotPerformanceWeb.PageLive do
           </.link>
 
           <.link
-            navigate="/get-bloodwork"
+            navigate="/find-bloodwork"
             class="group bg-white rounded-lg p-8 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 flex flex-col items-center text-center"
           >
             <div class="text-6xl mb-4">🔬</div>

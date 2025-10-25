@@ -71,6 +71,9 @@ defmodule MoonshotPerformanceWeb.UploadLive do
         <div class="bg-white rounded-lg p-8 shadow-lg">
           <h1 class="text-3xl font-bold text-gray-900 mb-6">Upload Your Bloodwork</h1>
 
+          <.flash kind={:info} flash={@flash} />
+          <.flash kind={:error} flash={@flash} />
+
           <form phx-submit="submit" phx-change="validate" class="space-y-6">
             <!-- Email Input -->
             <div>

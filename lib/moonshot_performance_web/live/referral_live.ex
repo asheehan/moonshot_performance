@@ -1,6 +1,8 @@
 defmodule MoonshotPerformanceWeb.ReferralLive do
   use MoonshotPerformanceWeb, :live_view
 
+  alias MoonshotPerformance.LeadCaptures
+
   @impl true
   def mount(_params, _session, socket) do
     socket =
@@ -40,21 +42,34 @@ defmodule MoonshotPerformanceWeb.ReferralLive do
         {:noreply, socket}
 
       true ->
-        # TODO: Store referral request in database
-        message =
-          if zip_code != "" do
-            "Thanks! We'll send lab information near #{zip_code} to #{email}."
-          else
-            "Thanks! We'll send lab information to #{email}."
-          end
+        # Save to database
+        attrs = %{
+          email: email,
+          zip_code: if(zip_code != "", do: zip_code, else: nil),
+          flow_type: "need_bloodwork"
+        }
 
-        socket =
-          socket
-          |> put_flash(:info, message)
-          |> assign(:zip_code, "")
-          |> assign(:email, "")
+        case LeadCaptures.create_lead_capture(attrs) do
+          {:ok, _lead_capture} ->
+            message =
+              if zip_code != "" do
+                "Thanks! We'll send lab information near #{zip_code} to #{email}."
+              else
+                "Thanks! We'll send lab information to #{email}."
+              end
 
-        {:noreply, socket}
+            socket =
+              socket
+              |> put_flash(:info, message)
+              |> assign(:zip_code, "")
+              |> assign(:email, "")
+
+            {:noreply, socket}
+
+          {:error, _changeset} ->
+            socket = put_flash(socket, :error, "Something went wrong. Please try again.")
+            {:noreply, socket}
+        end
     end
   end
 

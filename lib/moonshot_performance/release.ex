@@ -9,8 +9,39 @@ defmodule MoonshotPerformance.Release do
     load_app()
 
     for repo <- repos() do
-      {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
+      # Retry migrations with exponential backoff for DNS propagation
+      {:ok, _, _} =
+        retry_with_backoff(fn ->
+          Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
+        end)
     end
+  end
+
+  defp retry_with_backoff(fun, retries \\ 5, base_delay \\ 1000) do
+    case fun.() do
+      {:ok, _, _} = result ->
+        result
+
+      {:error, reason} ->
+        if retries > 0 do
+          IO.puts("Migration failed (#{retries} retries left): #{inspect(reason)}")
+          IO.puts("Waiting #{base_delay}ms before retry...")
+          Process.sleep(base_delay)
+          retry_with_backoff(fun, retries - 1, base_delay * 2)
+        else
+          raise "Migration failed after all retries: #{inspect(reason)}"
+        end
+    end
+  rescue
+    error ->
+      if retries > 0 do
+        IO.puts("Migration error (#{retries} retries left): #{inspect(error)}")
+        IO.puts("Waiting #{base_delay}ms before retry...")
+        Process.sleep(base_delay)
+        retry_with_backoff(fun, retries - 1, base_delay * 2)
+      else
+        reraise error, __STACKTRACE__
+      end
   end
 
   def rollback(repo, version) do

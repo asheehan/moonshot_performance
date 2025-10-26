@@ -139,6 +139,15 @@ defmodule MoonshotPerformanceWeb.UploadLive do
               Analyze My Results
             </button>
           </form>
+
+          <div class="pt-4">
+            <.link
+              navigate="/"
+              class="inline-block text-gray-600 hover:text-gray-900 font-medium"
+            >
+              ← Back to Home
+            </.link>
+          </div>
         </div>
       </div>
     </.gradient_page>
